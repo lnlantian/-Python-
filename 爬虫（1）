@@ -1,0 +1,118 @@
+# -*- coding:utf-8 -*-
+ 
+import urllib
+import urllib2
+import cookielib
+import re
+import webbrowser
+ 
+class Taobao:
+    #初始化方法
+    def __init__(self):
+        self.loginURL = "https://login.taobao.com/member/login.jhtml"
+        self.proxyURL = 'http://120.193.146.97:843'
+        self.loginHeaders =  {
+            'Host':'login.taobao.com',
+            'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:35.0) Gecko/20100101 Firefox/35.0',
+            'Referer' : 'https://login.taobao.com/member/login.jhtml',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Connection' : 'Keep-Alive'
+        }
+        self.username = 'cqcre'
+        self.ua = '191UW5TcyMNYQwiAiwFtVGtSaFBsUmpWbVBkSmpXVFeUB8XGJaYEB4TGxWbk5yTndXa0tyT29Ta0t1QGBeZDI'
+        self.password2 = '7511aa60118914125ab8f8ac466f'
+        self.post = post = {
+            'ua':self.ua,
+            'TPL_checkcode':'',
+            'CtrlVersion': '1,0,0,7',
+            'TPL_password':'',
+            'TPL_redirect_url':'http://i.taobao.com/my_taobao.htm?nekot=udm8087E1424147022443',
+            'TPL_username':self.username,
+            'loginsite':'0',
+            'newlogin':'0',
+            'from':'tb',
+            'fc':'default',
+            'style':'default',
+            'css_style':'',
+            'tid':'XOR_1_000000000000000000000000000000_625C4720470A0A050976770A',
+            'support':'000001',
+            'loginType':'4',
+            'minititle':'',
+            'minipara':'',
+            'umto':'NaN',
+            'pstrong':'3',
+            'llnick':'',
+            'sign':'',
+            'need_sign':'',
+            'isIgnore':'',
+            'full_redirect':'',
+            'popid':'',
+            'callback':'',
+            'guf':'',
+            'not_duplite_str':'',
+            'need_user_id':'',
+            'poy':'',
+            'gvfdcname':'10',
+            'gvfdcre':'',
+            'from_encoding ':'',
+            'sub':'',
+            'TPL_password_2':self.password2,
+            'loginASR':'1',
+            'loginASRSuc':'1',
+            'allp':'',
+            'oslanguage':'zh-CN',
+            'sr':'1366*768',
+            'osVer':'windows|6.1',
+            'naviVer':'firefox|35'
+        }
+        #将POST的数据进行编码转换
+        self.postData = urllib.urlencode(self.post)
+        self.proxy = urllib2.ProxyHandler({'http':self.proxyURL})
+        self.cookie = cookielib.LWPCookieJar()
+        self.cookieHandler = urllib2.HTTPCookieProcessor(self.cookie)
+        self.opener = urllib2.build_opener(self.cookieHandler,self.proxy,urllib2.HTTPHandler)
+    def needIdenCode(self):
+        #第一次登录获取验证码尝试，构建request
+        request = urllib2.Request(self.loginURL,self.postData,self.loginHeaders)
+        response = self.opener.open(request)
+        content = response.read().decode('gbk')
+        status = response.getcode()
+        if status == 200:
+            print u"获取请求成功"
+            #\u8bf7\u8f93\u5165\u9a8c\u8bc1\u7801这六个字是请输入验证码的utf-8编码
+            pattern = re.compile(u'\u8bf7\u8f93\u5165\u9a8c\u8bc1\u7801',re.S)
+            result = re.search(pattern,content)
+            if result:
+                print u"此次安全验证异常，您需要输入验证码"
+                return content
+            else:
+                print u"此次安全验证通过，您这次不需要输入验证码"
+                return False
+        else:
+            print u"获取请求失败"
+    def getIdenCode(self,page):
+        pattern = re.compile('<img id="J_StandardCode_m.*?data-src="(.*?)"',re.S)
+        matchResult = re.search(pattern,page)
+        if matchResult and matchResult.group(1):
+            print matchResult.group(1)
+            return matchResult.group(1)
+        else:
+            print u"没有找到验证码内容"
+            return False
+
+    def main(self):
+        needResult = self.needIdenCode()
+        if not needResult == False:
+            print u"您需要手动输入验证码"
+            idenCode = self.getIdenCode(needResult)
+            if not idenCode == False:
+                print u"验证码获取成功"
+                print u"请在浏览器中输入您看到的验证码"
+                webbrowser.open_new_tab(idenCode)
+            else:
+                print u"验证码获取失败，请重试"
+        else:
+            print u"不需要输入验证码"
+ 
+taobao = Taobao()
+taobao.main()
