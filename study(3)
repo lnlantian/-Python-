@@ -1,0 +1,54 @@
+#文件夹下遍历文件合并到记事本中
+#！usr/bin/env python
+# coding: utf-8
+
+import os
+import re
+import csv
+import json
+
+
+def GetFileList(dir, fileList):
+    newDir = dir
+    if os.path.isfile(dir):
+        fileList.append(dir.decode('gbk'))
+    elif os.path.isdir(dir):
+        for s in os.listdir(dir):
+
+            # if s == "xxx":
+            # continue
+            newDir = os.path.join(dir, s)
+            GetFileList(newDir, fileList)
+    return fileList
+
+
+list = GetFileList('C:\\Users\\Administrator\\Desktop\\mangwen\\111', [])
+
+
+lis = []
+list1 = []
+file1 = file("yue.txt","w")
+
+
+file1 = file("yue.txt","w")
+for e in list:
+    #print e
+    csvfile = file(e, 'r')
+    reader = csv.reader(csvfile)
+    for line in reader:
+        #print line
+
+        if len(line) < 2:
+            del line
+        else:
+            list1.append(line[2])
+    #print list1,
+for i in list1:
+    if i == "":
+        pass
+    else:
+        print i,
+        file1.write(i, )
+
+
+csvfile.close()
