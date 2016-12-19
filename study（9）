@@ -1,0 +1,17 @@
+#读取文件并选出大于等于3个中文字符的词并打印出
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
+file1 = open("yue1.txt","r")
+file2 = file1.read()
+#file2 = iter(file2)
+file3 = file2.split("     ")
+file4 = file("zuihou.txt", "w")
+#print file3,len(file3[2])
+for i in file3:
+    print len(i)
+    if len(i) >= 6:
+        print i,
+        file4.write(i + "     ")
+
+file1.close()
