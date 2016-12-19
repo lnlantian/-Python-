@@ -13,6 +13,7 @@ if __name__ == "__main__":
     req=urllib2.Request(url,urllib.urlencode(body))
     u=urllib2.urlopen(req)
     login=u.read().decode('utf-8').encode('gbk')
+    #decode 解码成unicode  |  encode 编码成gbk
     print re.findall('\<title\>(.+)\<',login)[0]
 
     mpurl='http://home.hi.mop.com/ajaxGetContinusLoginAward.do'
