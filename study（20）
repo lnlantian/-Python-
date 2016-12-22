@@ -1,0 +1,15 @@
+# 查找指定目录中文件的glob通配符方法
+#encoding=utf-8
+import os
+import glob
+
+def findfiles(dirname,pattern):
+    cwd = os.getcwd()
+    if dirname:
+        os.chdir(dirname)
+    result = []
+    for filename in glob.iglob(pattern): 
+        result.append(filename)
+    os.chdir(cwd)
+    return result
+if __name__ == '__main__': print(findfiles(r'D:\python\windows-service','*.py'))
