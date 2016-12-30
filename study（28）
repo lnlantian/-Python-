@@ -1,0 +1,64 @@
+#批量删除windows下的svn文件夹的方法
+
+# -*- coding: cp936 -*-  
+
+import os,win32con,win32api  
+  
+def trimpath(pathin):  
+ 
+  if pathin[0] == '\"':  
+    pathin = pathin[1:]  
+
+  if pathin[(len(pathin)-1)] == '\"':  
+    pathin = pathin[:(len(pathin)-1)]  
+   
+  return pathin  
+   
+def clearsvn(path):  
+ 
+  filenames = os.listdir(path)     
+  for singlefile in filenames:      
+    pathfile = path + '\\' + singlefile  
+ 
+    if os.path.isdir(pathfile):       
+      if singlefile.find('.svn') != -1:  
+        deltree(pathfile)  
+           
+        print "清理目录:" + pathfile  
+
+        win32api.SetFileAttributes(pathfile, win32con.FILE_ATTRIBUTE_NORMAL)  
+        os.rmdir(pathfile)  
+      else:  
+        clearsvn(pathfile)  
+          
+def deltree(path):       
+  filenames = os.listdir(path)   
+  for singlefile in filenames:        
+    pathfile = path + '\\' + singlefile   
+    if os.path.isdir(pathfile):         
+      print "清理目录:" + pathfile  
+      win32api.SetFileAttributes(pathfile, win32con.FILE_ATTRIBUTE_NORMAL)  
+
+      deltree(pathfile)  
+
+      os.rmdir(pathfile)  
+    
+    if os.path.isfile(pathfile):           
+      print "删除文件:" + pathfile  
+      #修改属性，同linux下chmod  
+      win32api.SetFileAttributes(pathfile, win32con.FILE_ATTRIBUTE_NORMAL)  
+      #api删除文件  
+      os.remove(pathfile)  
+          
+if __name__=="__main__":   
+  pathin = raw_input("拖放要删除文件所在目录到此：")  
+  path = trimpath(pathin)  
+ 
+  choose = raw_input("需要清理的文件夹为 [ " + path + " ] y/n?:")      
+  if choose == 'y' or choose == 'Y':  
+    if os.path.exists(path)==False:  
+      print "输入的目录不存在！" 
+      os._exit(1)  
+    clearsvn(path)  
+    print "清理完成!"  
+    os.system('pause')
