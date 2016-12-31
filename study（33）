@@ -1,0 +1,16 @@
+#调用MySQL存储过程,获得返回值实例
+
+try: 
+   conn = MySQLdb.connect ( 
+    host  = 'localhost',  
+    user  = 'root',  
+    passwd = 'pass',  
+    db = 'prod', 
+    port  = 3306
+   )  
+   cursor1=conn.cursor() 
+   cursor1.execute("CALL error_test_proc()") 
+   cursor1.close() 
+ 
+except MySQLdb.Error, e: 
+   print "Mysql Error %d: %s" % (e.args[0], e.args[1])
