@@ -1,0 +1,22 @@
+# 实现了解析淘宝助理数据包csv文件
+
+#/usr/bin/python
+# encoding=utf-8
+ 
+import os
+# 从当前脚本所在目录中查找csv文件
+for f in os.listdir(os.path.dirname(os.path.abspath(__file__))):
+
+    if f[-4:len(f)] != '.csv':
+        continue
+    content = file(f).read()
+    content = content.decode('utf-16').encode('utf-8')
+    content = content.replace("\r\n", '')
+    for num, line in enumerate(content.split("\n")):
+ 
+        if not line:
+            continue
+        fields = []
+        for field in line.strip().split("\t"):
+            fields.append(field)
+        print len(fields)
