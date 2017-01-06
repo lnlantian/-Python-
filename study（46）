@@ -1,0 +1,21 @@
+# 删除py文件注释
+s=''
+for l in open('file1.py').readlines():
+    if '#'in l:
+        l=l.split('#')[0]+'\n'
+    s+=l
+f = open('file1.py','w')
+f.write(s)
+f.close()
+
+# Python删除py文件注释示例源码：
+f = open('file1.py', 'r+')
+line = f.readlines()
+f.seek(0)
+for l in line:
+    for i in range(len(l)):
+        if l[i]=='#':
+            l=l[:i]+' '*(len(l)-i-1)+'\n'
+            break
+    f.write(l)
+f.close()
