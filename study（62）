@@ -1,0 +1,90 @@
+# 邮件收发之密送带附件源码
+
+import os  
+import smtplib  
+import mimetypes  
+import xlrd 
+from email.MIMEMultipart import MIMEMultipart  
+from email.MIMEBase import MIMEBase  
+from email.MIMEText import MIMEText  
+from email.MIMEAudio import MIMEAudio  
+from email.MIMEImage import MIMEImage  
+from email import encoders
+from email.utils import parseaddr, formataddr
+from email.header import Header
+from email.Encoders import encode_base64
+from email.utils import COMMASPACE
+ 
+subject = u'团队工作简报第144期'
+content_file_path = u"E:\send_Dian.txt".encode("gb2312") 
+path = u"E:\测试邮箱列表.xls".encode("gb2312") 
+file_path = u"E:\Newsletter_20150916_147.pdf".encode("gb2312") 
+email_name = u'E-mail Address' 
+content_file = open(content_file_path)
+content = content_file.read()
+def _format_addr(s):
+    name, addr = parseaddr(s)
+    return formataddr(( \
+        Header(name, 'utf-8').encode(), \
+        addr.encode('utf-8') if isinstance(addr, unicode) else addr))
+ 
+def sendMail(gmailUser, gmailPassword, subject, text, other, *attachmentFilePaths):   
+    recipient = []  
+    cmail = []
+    msg = MIMEMultipart()  
+    msg['From'] = _format_addr(u'Newsletter Dian <%s>' % gmailUser) 
+    msg['To'] = COMMASPACE.join(recipient)
+    msg['Cc'] = COMMASPACE.join(cmail)
+    msg['Subject'] = Header(subject, 'utf-8').encode()  
+    msg.attach(MIMEText(content, 'plain', 'utf-8'))  
+    for attachmentFilePath in attachmentFilePaths:  
+        msg.attach(getAttachment(attachmentFilePath))  
+    mailServer = smtplib.SMTP('mail.hust.edu.cn', 25)  
+    mailServer.ehlo()  
+    mailServer.starttls()  
+    mailServer.ehlo()  
+    mailServer.login(gmailUser, gmailPassword)  
+    mailServer.sendmail(gmailUser, recipient+cmail+other, msg.as_string())  
+    mailServer.close()    
+    print "Sent  email  to  ", other 
+def getAttachment(attachmentFilePath):  
+    contentType, encoding = mimetypes.guess_type(attachmentFilePath)  
+    if contentType is None or encoding is not None:  
+        contentType = 'application/octet-stream' 
+    mainType, subType = contentType.split('/', 1)  
+    file = open(attachmentFilePath, 'rb')  
+    if mainType == 'text':  
+        attachment = MIMEText(file.read())  
+    elif mainType == 'message':  
+        attachment = email.message_from_file(file)  
+    elif mainType == 'image':  
+        attachment = MIMEImage(file.read(),_subType=subType)  
+    elif mainType == 'audio':  
+        attachment = MIMEAudio(file.read(),_subType=subType)  
+    else:  
+        attachment = MIMEBase(mainType, subType)  
+    attachment.set_payload(file.read())  
+    encode_base64(attachment)    
+    file.close()  
+    attachment.add_header('Content-Disposition', 'attachment',   filename=os.path.basename(attachmentFilePath))  
+    return attachment  
+ 
+def OneUsrSendMail(gmailUser, gmailPassword, sheetNumFrom, sheetNumTo):
+    other = []
+    emailCnt = 0
+    book = xlrd.open_workbook(path)
+    for sheetmun in range(sheetNumFrom-1, sheetNumTo):    
+      sh = book.sheet_by_index(sheetmun)
+      nrows = sh.nrows
+      clox = sh.row_values(0).index(email_name)           
+      for i in range(1, nrows):
+        cell_value = sh.cell_value(i,clox)
+        other.append(cell_value)                        
+        emailCnt = emailCnt+1
+        if emailCnt == 40:                            
+            sendMail(gmailUser, gmailPassword, subject, content, other, file_path) 
+            emailCnt = 0
+            other = []
+    if emailCnt != 0:                                      
+        sendMail(gmailUser, gmailPassword, subject, content, other, file_path)
+OneUsrSendMail('xxxxx@hust.edu.cn', 'xxxxxxxx', 1, 3) 
