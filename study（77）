@@ -1,0 +1,20 @@
+#Tkinter 设置图片以及文字的函数
+
+  def createWidgets(self):
+
+    def show(event):
+        cv.create_image(250, 150, image=img)
+
+    self.nameInput = Entry(self,width = 60)
+    self.nameInput.pack()
+
+    self.alertButton = Button(self, text='翻译',bg='red', command=self.hello)
+    self.alertButton.pack()
+
+    self.alertButton.bind("<Button-1>",show)
+    cv = Canvas(root, bg='white')
+    cv.grid()
+    cv.pack()
+    img = ImageTk.PhotoImage(file='png/0004.png')
+    Label(root, text="abc", image=img).pack(side="top")
+    root.mainloop()
