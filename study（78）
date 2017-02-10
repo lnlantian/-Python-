@@ -1,0 +1,28 @@
+# Python的Tkinter库使用
+
+#!/usr/bin/python
+# -*- coding:UTF-8 -*-
+from PIL import Image, ImageTk
+import os
+from Tkinter import *
+from PIL import Image
+from PIL import ImageTk
+
+
+def show(event):
+    can.create_image(150, 150, image=img)
+    # can.create_line(10,10,50,50,width=5)
+
+root=Tk()
+root.title('Canvas')
+can=Canvas(root)
+can.grid()
+button=Button(height=1,width=15,text='翻译',bg='green')
+button.bind("<Button-1>",show)
+button.grid()
+
+img = Image.open("png/0001.png")
+img = ImageTk.PhotoImage(img)
+
+
+root.mainloop()
