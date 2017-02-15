@@ -1,0 +1,23 @@
+# 重命名指定目录文件
+
+import os
+ 
+path = 'F:\Python\open project\SGI\SGI_STL'
+paths = path.replace('\\', '//')
+paths = paths + '//'
+print paths
+files = os.listdir(paths)
+for i in files:
+    pat = None
+    pat = paths + str(i)
+    if os.path.isdir(pat):
+        pass
+    elif os.path.isfile(pat):
+        if not str(pat).endswith('.h'):
+            list = pat.split('//')
+            patt =  list[list.__len__() - 1] + '.h'
+            print(str(i) + str(patt))
+            os.rename(pat, str(pat + patt))
+        print('regfile:' + pat)
+    else:
+        pass
