@@ -1,0 +1,19 @@
+# 清空当前目录下当前文件以外的所有文件
+
+#!/usr/local/bin/python2
+import os
+ 
+files = os.listdir(os.getcwd())
+for one_file in files:
+    if os.path.isfile(one_file) and one_file != os.path.basename(__file__):
+        (open(one_file, 'w')).truncate()
+ 
+print "Done!"
+
+###########################################################
+ seek(offset,where):  where=0从起始位置移动，1从当前位置移动，2从结束位置移动。当有换行时，会被换行截断。seek（）无返回值，故值为None。
+ tell():  文件的当前位置,即tell是获得文件指针位置，受seek、readline、read、readlines影响，不受truncate影响
+ truncate(n):  从文件的首行首字符开始截断，截断文件为n个字符；无n表示从当前位置起截断；截断之后n后面的所有字符被删除。其中win下的换行代表2个字符大小。
+ readline(n):读入若干行，n表示读入的最长字节数。其中读取的开始位置为tell()+1。当n为空时，默认只读当前行的内容
+ readlines读入所有行内容
+ read读入所有行内容
