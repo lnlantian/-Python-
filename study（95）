@@ -1,0 +1,87 @@
+#  利用python抓取返利网　商品信息
+
+#coding=utf-8
+import sys
+reload(sys)
+sys.setdefaultencoding( "utf-8" )
+import urllib2
+import re
+from bs4 import BeautifulSoup
+import time
+import socket
+
+fanly_path="F:\yaozhi\yaozhi.txt"
+fanly_url="http://zhide.fanli.com/p"
+format_url="http://zhide.fanli.com/detail/1-"
+reg=r'data-id="\d{6}"'
+reg2=r"\d{6}"
+reg3='"lowest-network"'
+reg4=r'<.+?>'
+result=re.compile(reg)
+class faly():
+    def __init__(self):
+        #初始化头文件  'User-Agent'
+        self.user_agent='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0'
+        self.html_data=[]
+    def get_html(self,start_page=1,end_page=7):
+        if start_page<1:
+            return "页码输入错误"
+        elif end_page>1000:
+            return "页码超出范围，请输入1-100的整数!"
+        for i in range(start_page,end_page+1):
+            print("----正在采集%d页的数据----"%i)
+            rt=urllib2.Request(fanly_url+str(i))
+            rt.add_header( 'User-Agent',self.user_agent)
+            try:
+                my_data = urllib2.urlopen(rt).read()
+                self.html_data.append(my_data)
+                time.sleep(2)
+                socket.setdefaulttimeout(15)
+            except urllib2.URLError, e:
+                if hasattr(e,'reason'):
+                    print u"连接失败",e.reason
+        return  str(self.html_data)
+
+class GetData():
+    def __init__(self):
+        self.html=faly().get_html()
+        self.href=[]
+        self.ls=[]
+        self.url=[]
+ 
+    def get_hrefurl(self):
+        tag=result.findall(self.html)
+        for i in tag:
+            self.href.append(i)
+        result2=re.findall(reg2,str(self.href))
+        if len(result2):
+            for data in result2:
+                if data not in self.ls:
+                    self.ls.append(data)
+                    url=format_url+str(data)
+                    self.url.append(url)
+        return self.url
+
+class Href_mg():
+    def __init__(self):
+        self.list=GetData().get_hrefurl()
+        self.txt_list=[]
+    def show_mg(self):
+        for item in range(len(self.list)):
+            if len(self.list):
+                url=str(self.list[item])
+                mg=urllib2.Request(url)
+                try:
+                    req=urllib2.urlopen(mg).read()
+                    soup=BeautifulSoup(req,"html.parser")
+                    txt=soup.find_all('h1')
+                    self.txt_list.append(txt)
+                except urllib2.URLError,e:
+                    print e.reason
+        return str(self.txt_list).decode("unicode_escape")
+ 
+if __name__ == "__main__":
+    with open(fanly_path,'a') as file:
+        data=Href_mg().show_mg()
+        data_s=re.sub(reg4,' ',data).replace('全网最低','').replace('[','').replace(']','').replace(',','\n').strip().replace('  ','')
+        file.write(str(data_s))
